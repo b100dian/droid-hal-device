@@ -488,7 +488,7 @@ mkdir tmp/units
 # skip various mounts which are not wanted (This is just in case they creep in)
 # First handle stupid spec quoting rules to get some args for makefstab
 shopt -s nullglob
-fstab_files="$(echo %{android_root}/out/target/product/%{device}/root/fstab* %{android_root}/out/target/product/%{device}/system/etc/init/hw/*.rc %{android_root}/out/target/product/%{device}/root/*.rc %{android_root}/out/target/product/%{device}/vendor/etc/fstab* %{android_root}/out/target/product/%{device}/system/vendor/etc/fstab*)"
+fstab_files="$(echo %{android_root}/out/target/product/%{device}/root/fstab* %{android_root}/out/target/product/%{device}/system/etc/init/hw/*.rc %{android_root}/out/target/product/%{device}/root/*.rc %{android_root}/out/target/product/%{device}/vendor/etc/fstab* %{android_root}/out/target/product/%{device}/system/vendor/etc/fstab* %{android_root}/device/%{vendor}/%{device}/rootdir/etc/fstab*)"
 shopt -u nullglob
 
 
@@ -628,11 +628,11 @@ if [ $android_version_major -ge "10" ]; then
         art_path=%{android_root}/out/target/product/%{device}
         apex_path=apex/com.android.runtime
     fi
-    cp -a \
+    cp -r --remove-destination \
         $art_path/$apex_path/lib/bionic/lib{dl,c,m}.so \
         $RPM_BUILD_ROOT%{_libexecdir}/droid-hybris/system/lib
 %if 0%{?droid_target_aarch64:1}
-    cp -a \
+    cp -r --remove-destination \
         $art_path/$apex_path/lib64/bionic/lib{dl,c,m}.so \
         $RPM_BUILD_ROOT%{_libexecdir}/droid-hybris/system/lib64
 %endif
@@ -840,7 +840,7 @@ fi
 
 # Kernel and module installation; to
 # /boot and modules to /lib as normal
-kernel_release=$(cat out/target/product/%{device}/*/*/include/config/kernel.release)
+kernel_release=$(cat out/target/product/%{device}/*/*/include/config/kernel.release  | head -n 1)
 cp out/target/product/%{device}/kernel $RPM_BUILD_ROOT/boot/kernel-$kernel_release
 cp out/target/product/%{device}/obj/ROOT/hybris-boot_intermediates/boot-initramfs.gz $RPM_BUILD_ROOT/boot/
 
